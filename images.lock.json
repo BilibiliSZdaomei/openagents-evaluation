@@ -5,21 +5,29 @@
   "images": [
     {
       "tag": "offline/openagents-web:2500fcc",
-      "id": "sha256:64da819240b1ec38e6463ad57175bdd44d6d0e82da055d5a4009b624ea6bde57"
+      "id": "sha256:64da819240b1ec38e6463ad57175bdd44d6d0e82da055d5a4009b624ea6bde57",
+      "alias": "openagents-evaluation/runtime-web:64da819240b1",
+      "manifest": "sha256:cdf9d2cffcfea32b18c8a757331eba1dcd4ed0185d2d909561e7484eda2e70eb"
     },
     {
       "tag": "eval/openagents-backend:2500fcc",
-      "id": "sha256:07fc980bd0838ceb8a3ae8a5b8c9a7808c172557dd60b4497688bc27d15ba758"
+      "id": "sha256:07fc980bd0838ceb8a3ae8a5b8c9a7808c172557dd60b4497688bc27d15ba758",
+      "alias": "openagents-evaluation/runtime-backend:07fc980bd083",
+      "manifest": "sha256:5b1da77b5f613a229e8e928e1e9f03e7a548253066432a4b2b5da9042f18da8a"
     },
     {
       "tag": "nginx:alpine",
       "id": "sha256:62d1c420c34ae91f7bffd349903cd6846806b835129c8b7ba2da28b3be323cd1",
-      "pull": "nginx@sha256:0563c36f94a6d3ec3584161b77859f740f7e20b4853f52c796a864ce6908e8ea"
+      "pull": "nginx@sha256:0563c36f94a6d3ec3584161b77859f740f7e20b4853f52c796a864ce6908e8ea",
+      "alias": "openagents-evaluation/runtime-nginx:62d1c420c34a",
+      "manifest": "sha256:700949236a9ef25075f93fc09fbaaa9b6863392367ed400d24c11184c6c942a5"
     },
     {
       "tag": "postgres:16-alpine",
       "id": "sha256:a3c40a6a77a9a545ed6d766860c45f82ab8bc254148266e56c4139f91beec635",
-      "pull": "postgres@sha256:1758b87430847848ff5a71cbdd898c7a21e469166c3e25244940f05ea97800ad"
+      "pull": "postgres@sha256:1758b87430847848ff5a71cbdd898c7a21e469166c3e25244940f05ea97800ad",
+      "alias": "openagents-evaluation/runtime-postgres:a3c40a6a77a9",
+      "manifest": "sha256:69444c05f5a13fd957843df216b3afbc340b265c143d772a9c9e657d14924d4a"
     }
   ],
   "build_bases": {

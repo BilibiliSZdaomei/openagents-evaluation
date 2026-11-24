@@ -1,8 +1,8 @@
 name: openagents-evaluation
-x-backend: &backend-image "${OA_BACKEND_IMAGE:-eval/openagents-backend:2500fcc}"
+x-backend: &backend-image "${OA_BACKEND_IMAGE:-openagents-evaluation/runtime-backend:07fc980bd083}"
 services:
   db:
-    image: postgres:16-alpine
+    image: openagents-evaluation/runtime-postgres:a3c40a6a77a9
     restart: unless-stopped
     environment:
       POSTGRES_USER: openagents
@@ -50,7 +50,7 @@ services:
       timeout: 4s
       retries: 60
   web:
-    image: "${OA_WEB_IMAGE:-offline/openagents-web:2500fcc}"
+    image: "${OA_WEB_IMAGE:-openagents-evaluation/runtime-web:64da819240b1}"
     restart: unless-stopped
     environment:
       WORKSPACE_DEV_API_TARGET: http://backend:8000
@@ -67,7 +67,7 @@ services:
       - provision:/state
       - entry:/entry
   front:
-    image: nginx:alpine
+    image: openagents-evaluation/runtime-nginx:62d1c420c34a
     restart: unless-stopped
     depends_on:
       bootstrap: {condition: service_completed_successfully}

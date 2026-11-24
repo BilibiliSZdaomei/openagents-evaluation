@@ -15,6 +15,8 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
+if str(ROOT) not in sys.path:  # Windows embeddable Python starts in isolated mode.
+    sys.path.insert(0, str(ROOT))
 if os.name == "nt":
     DEFAULT_CONFIG = Path(os.environ["LOCALAPPDATA"]) / "OpenAgentsEvaluation" / "config"
 else:
@@ -71,13 +73,8 @@ def digest(path):
 
 def verify_images(source_build=False):
     lock = json.loads((ROOT / "images.lock.json").read_text(encoding="utf-8"))
-    for image in lock["images"]:
-        if source_build and not image.get("pull"):
-            continue
-        data = run(["docker", "image", "inspect", image["tag"]], capture_output=True, text=True)
-        image_info = json.loads(data.stdout)[0]
-        if (image_info["Id"], image_info["Os"], image_info["Architecture"]) != (image["id"], "linux", "amd64"):
-            raise ValueError("Image mismatch: " + image["tag"])
+    from image_import import ensure_aliases
+    ensure_aliases([i for i in lock["images"] if not source_build or i.get("pull")])
 
 
 def main():
@@ -105,8 +102,9 @@ def main():
                 expected[name.lstrip("* ")] = checksum
         if expected.get(a.archive.name) != digest(a.archive):
             raise ValueError("Release file name or SHA-256 mismatch")
-        run(["docker", "load", "-i", str(a.archive.resolve())])
-        verify_images()
+        from image_import import import_bundle
+        images = json.loads((ROOT / "images.lock.json").read_text(encoding="utf-8"))["images"]
+        import_bundle(a.archive, images)
         return
     if a.action == "build":
         from source_build import build
@@ -154,5 +152,5 @@ def main():
 if __name__ == "__main__":
     try:
         main()
-    except (OSError, ValueError, subprocess.CalledProcessError) as e:
+    except (OSError, ValueError, RuntimeError, subprocess.CalledProcessError) as e:
         sys.exit(str(e))

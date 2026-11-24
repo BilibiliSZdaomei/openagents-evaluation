@@ -16,11 +16,12 @@ def build():
     root = Path(__file__).resolve().parent
     lock = json.loads((root / "images.lock.json").read_text(encoding="utf-8"))
     commit = lock["upstream_commit"]
-    for dep in lock["images"]:
-        if not dep.get("pull"):
-            continue
+    from image_import import ensure_aliases, tag_targets
+    dependencies = [dep for dep in lock["images"] if dep.get("pull")]
+    tag_targets(dependencies)
+    for dep in dependencies:
         run(["docker", "pull", "--platform", "linux/amd64", dep["pull"]])
-        run(["docker", "tag", dep["pull"], dep["tag"]])
+    ensure_aliases(dependencies)
     temp_root = Path(os.getenv("OPENAGENTS_BUILD_TEMP") or tempfile.gettempdir()).resolve()
     if temp_root.is_relative_to(root):
         raise ValueError("Choose an external build temporary directory outside this checkout.")

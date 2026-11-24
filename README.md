@@ -14,6 +14,32 @@ python manage.py up
 
 在部署电脑打开 [OpenAgents 评测工作区](http://openagents.localhost:18811/start/workspace)，用户名 `admin`。Chrome 首次会弹出用户名和密码框。该网址直接进入测试线程，输入 `@review-assistant 6 个货架，每个 17 箱，共有几箱？` 即可测试。模型 API 地址为 `https://api.deepseek.com/v1`，模型 ID 为 `deepseek-flash`（DeepSeek V4.1 Flash）。工作区创建时也会按上游设置初始化 Yumi。
 
+## 在无桌面的 Ubuntu 内网服务器评测
+
+服务器可以仅运行 Docker Engine、Compose v2 和 Python 3.10。镜像按 [离线依赖](OFFLINE.md) 在有网络的电脑下载并校验，连同仓库文件传入服务器，再用同一个获准运行 Docker 的 Linux 账号导入和启动。只有构建源码时才需要 Git 和构建工具。模型对话需要容器能访问 DeepSeek API。
+
+在**目标服务器**的仓库根目录执行。首次启动会在 SSH 终端提示输入自己的 Key 和评测密码，输入时不会回显。
+
+```bash
+python3 --version
+docker compose version
+docker info --format '{{.DockerRootDir}}'
+python3 manage.py up
+curl --noproxy '*' -sS -o /dev/null -w '%{http_code}\n' http://127.0.0.1:18811/start/workspace
+```
+
+最后一条返回 `401` 表示入口已就绪并要求登录。在**工作电脑**另开终端，把下面的账号与主机替换成已获准使用的 SSH 目标，保持这个窗口打开。
+
+```sh
+ssh -N -o ExitOnForwardFailure=yes -J jumpuser@bastion -L 127.0.0.1:18811:127.0.0.1:18811 deployuser@target
+```
+
+在工作电脑的 Chrome 打开 [评测工作区](http://openagents.localhost:18811/start/workspace)，使用 `admin` 和刚设置的密码。工作电脑的 18811 已被占用时（例如正在运行本地评测），将 `-L` 后第一处 `18811` 改成 `19811`，浏览器使用 `http://openagents.localhost:19811/start/workspace`。目标服务器仍监听 18811。如果在服务器上也用 `--port` 改过端口，请把 `-L` 最后一项改为实际的服务端口。SSH 断开时服务继续运行，下次重新建立转发即可。堡垒机需允许该账号对目标主机建立 SSH 连接和端口转发。
+
+保留默认回环监听。统一密码保护浏览器入口，原生 API 仍使用 OpenAgents 自身的鉴权；直接将端口发布到公司网段需要单独设计访问控制。浏览器请使用上述 `openagents.localhost` 主机名，原版前端对裸 `localhost` 使用不同的账号登录流程。
+
+Docker 的数据根目录若为 `/data/docker`，由该引擎管理的命名卷就保存在对应数据盘。可运行 `docker volume ls --filter label=com.docker.compose.project=openagents-evaluation` 列出本部署卷，再用 `docker volume inspect 卷名` 查看实际位置。仓库可放在另一个普通目录。私有凭据在运行 `manage.py` 的 Linux 用户配置目录中，需要和卷一起备份。
+
 ## 使用与保存
 
 ```sh
@@ -22,7 +48,7 @@ python manage.py stop
 python manage.py up
 ```
 
-首次安装、停服务、换端口和重启应使用同一个 `--project` 和 `--config-dir`。默认 Docker 项目名为 `openagents-evaluation`。如默认端口已占用，可用 `python manage.py up --port 19811`，浏览器访问 `http://openagents.localhost:19811/start/workspace`。普通本机评测保持默认的 `127.0.0.1` 绑定。内网团队共用时可保留此绑定，由管理员在同机配置 HTTPS 反代和内网访问控制，转发到前端，使用该 HTTPS 站点的 `/start/workspace`；如确需改监听，可传 `--bind 内网接口IP`。HTTP Basic 的用户名和密码只应在回环地址或 HTTPS 上传输。
+首次安装、停服务、换端口和重启应使用同一个 `--project` 和 `--config-dir`。默认 Docker 项目名为 `openagents-evaluation`。如默认端口已占用，可用 `python manage.py up --port 19811`，浏览器访问 `http://openagents.localhost:19811/start/workspace`。服务器远程评测也保留默认的 `127.0.0.1` 绑定，通过下述 SSH 转发访问。
 
 凭据首次在部署机新建。Windows 默认位于当前用户的 `%LOCALAPPDATA%\OpenAgentsEvaluation\config`；Linux/WSL 默认位于 `~/.config/openagents-evaluation`。可用 `--config-dir` 指定仓库以外的独立私有目录。无人值守安装可在调用进程的环境里提供 `OPENAGENTS_DEEPSEEK_KEY` 和 `OPENAGENTS_LOGIN_PASSWORD`，已有配置文件优先。禁止将这些文件、容器日志、浏览器数据或运行卷放入 Git 或 Release。
 
