@@ -1,0 +1,12 @@
+.env
+.env.*
+*.key
+*.pem
+*.tar
+*.tar.gz
+*.log
+__pycache__/
+.DS_Store
+
+/.tools/
+/python-*-embed-amd64.zip

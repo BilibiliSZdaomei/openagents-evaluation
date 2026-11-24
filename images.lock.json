@@ -1,0 +1,29 @@
+{
+  "upstream_url": "https://github.com/openagents-org/openagents.git",
+  "upstream_commit": "2500fccb0c5623a82cf9f4155212002e4386bd68",
+  "platform": "linux/amd64",
+  "images": [
+    {
+      "tag": "offline/openagents-web:2500fcc",
+      "id": "sha256:64da819240b1ec38e6463ad57175bdd44d6d0e82da055d5a4009b624ea6bde57"
+    },
+    {
+      "tag": "eval/openagents-backend:2500fcc",
+      "id": "sha256:07fc980bd0838ceb8a3ae8a5b8c9a7808c172557dd60b4497688bc27d15ba758"
+    },
+    {
+      "tag": "nginx:alpine",
+      "id": "sha256:62d1c420c34ae91f7bffd349903cd6846806b835129c8b7ba2da28b3be323cd1",
+      "pull": "nginx@sha256:0563c36f94a6d3ec3584161b77859f740f7e20b4853f52c796a864ce6908e8ea"
+    },
+    {
+      "tag": "postgres:16-alpine",
+      "id": "sha256:a3c40a6a77a9a545ed6d766860c45f82ab8bc254148266e56c4139f91beec635",
+      "pull": "postgres@sha256:1758b87430847848ff5a71cbdd898c7a21e469166c3e25244940f05ea97800ad"
+    }
+  ],
+  "build_bases": {
+    "backend": "python:3.12-slim@sha256:05a994d2344eb364cc186910f4fc8786a38215f39f00d0acc25bff33a08f4177",
+    "frontend": "node:20.20.2-alpine@sha256:afdf98210b07b586eb71fa22ba2e432e058e4cd1304d31ed60888755b8c865fb"
+  }
+}

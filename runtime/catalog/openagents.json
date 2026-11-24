@@ -1,0 +1,12 @@
+{
+  "name": "openagents",
+  "label": "Yumi · DeepSeek",
+  "order": 2,
+  "models": [
+    {
+      "id": "deepseek-flash",
+      "label": "DeepSeek V4.1 Flash",
+      "category": "chat"
+    }
+  ]
+}
